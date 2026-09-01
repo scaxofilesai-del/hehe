@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Giselda Sabina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --maroon: #2A0A0A;
+            --cream: #F8F5F2;
+            --gold: #D4AF37;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--maroon);
+            color: var(--cream);
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen {
+            display: none;
+            position: absolute;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* --- PIN SCREEN --- */
+        .pin-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 22px;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+        #pin-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(248, 245, 242, 0.5);
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 20px;
+            color: var(--cream);
+            width: 180px;
+            outline: none;
+            padding: 10px;
+        }
+        .err-msg {
+            font-size: 14px;
+            color: #ff6b6b;
+            margin-top: 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .shake { animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+        /* --- ENVELOPE & LETTER --- */
+        .envelope {
+            width: 120px;
+            height: 80px;
+            background: var(--gold);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .envelope:hover { transform: scale(1.1); }
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-top: 40px solid #c19b2e;
+            z-index: 2;
+            transform-origin: top;
+            transition: transform 0.5s;
+        }
+        .envelope.clicked::before {
+            transform: rotateX(180deg);
+        }
+        .envelope::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            border-left: 60px solid #b38920;
+            border-right: 60px solid #b38920;
+            border-bottom: 40px solid #a37a17;
+            z-index: 1;
+        }
+        .letter-paper {
+            display: none;
+            background: var(--cream);
+            color: #333;
+            max-width: 90%;
+            width: 420px;
+            max-height: 80vh;
+            padding: 30px;
+            border-radius: 10px;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: left;
+            font-size: 15px;
+            line-height: 1.7;
+            font-family: 'Poppins', sans-serif;
+            position: absolute;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.6s, transform 0.6s;
+            transform: translateY(20px);
+        }
+        .letter-paper.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .next-btn {
+            background: transparent;
+            color: var(--maroon);
+            border: 1px solid var(--maroon);
+            padding: 10px 30px;
+            margin-top: 30px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.5s 0.5s, background 0.3s;
+        }
+        .next-btn.show { opacity: 1; }
+        .next-btn:hover { background: var(--maroon); color: var(--cream); }
+
+        /* --- QUESTION SCREEN --- */
+        .q-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 400;
+            margin-bottom: 50px;
+        }
+        .button-group { display: flex; gap: 30px; align-items: center; }
+        #yes-btn {
+            background: var(--gold);
+            border: none;
+            color: var(--maroon);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #no-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--cream);
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+        #no-btn:hover { border-color: var(--cream); }
+
+        /* --- THANK YOU SCREEN --- */
+        .heart { font-size: 60px; margin-bottom: 20px; animation: heartbeat 1.5s infinite; }
+        @keyframes heartbeat { 0% { transform: scale(1); } 30% { transform: scale(1.1); } 60% { transform: scale(1); } 100% { transform: scale(1); } }
+        .final-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; margin-bottom: 30px; font-weight: 600; color: var(--gold); }
+        .final-msg { max-width: 400px; font-size: 15px; line-height: 1.8; margin-bottom: 40px; color: rgba(248,245,242,0.9); }
+        .instruction { font-size: 12px; color: rgba(248,245,242,0.5); letter-spacing: 1px; font-style: italic; border: 1px solid rgba(248,245,242,0.2); padding: 10px; border-radius: 5px; }
+
+        /* Background subtle floating hearts */
+        .bg-hearts {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .bg-heart {
+            position: absolute;
+            color: rgba(212, 175, 55, 0.2);
+            font-size: 20px;
+            animation: floatUp 10s linear infinite;
+        }
+        @keyframes floatUp { 0% { bottom: -100px; opacity: 0; } 20% { opacity: 1; } 100% { bottom: 100%; opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-hearts" id="hearts"></div>
+
+    <!-- PIN -->
+    <div id="screen-pin" class="screen active">
+        <div class="pin-title">"0412"mungkin spesial </div>
+        <input type="password" id="pin-input" maxlength="4" inputmode="numeric">
+        <div class="err-msg" id="err-msg">Kode salah, coba lagi ya.</div>
+    </div>
+
+    <!-- AMPLOP -->
+    <div id="screen-letter" class="screen">
+        <div class="envelope" id="envelope"></div>
+        <div class="letter-paper" id="letter">
+            <p style="font-family: 'Cormorant Garamond', serif; font-size: 18px;">Hai Giselda Sabina,</p>
+            <p>Aku mau jujur sedikit ya, hehe~</p>
+            <p>Waktu pertama aku lihat kamu pas lagi live, jujur mataku terpesona banget sama paras wajah yang kamu keluarkan. Ini pertama kalinya aku lihat cewek, jantungku berdebar kencang, walaupun cuma lihat dari HP aja wkwk.</p>
+            <p>sampai aku ngerasa "i think he opened my heart" dan tanpa kamu sadari" aku kayanya jatuh cinta deh"Aku juga coba pendekatan dan nanya tipis-tipis, eh ternyata kamu respon aku dengan senang hati. Di situ perasaanku campur aduk banget. Karena pertama kali ini aku kenalan sama perempuan yang memang dunia ciptakan sebagai sebuah mahakarya, dan menitipkannya kepadaku. Dan itu kamu.</p>
+            <p style="font-style: italic;">"Dan kehadirannya di dalam hidupku—adalah pengingat bahwa terkadang, semesta memang sengaja menciptakan sesuatu yang terlalu indah untuk sekadar disebut biasa."</p>
+            <p>Dan tentang dirimu, Ia bukan sekadar nama yang tersusun dari huruf, bukan pula sekadar manusia yang kebetulan berjalan di antara manusia lainnya. Ia adalah sebuah mahakarya—karya yang seakan lahir ketika semesta sedang berada di puncak keindahannya, ditulis dengan tinta cahaya, dan dititipkan kepada dunia agar keindahan memiliki sebuah nama.</p>
+            <p>Di antara jutaan nama yang pernah ditulis oleh kehidupan, ada nama yang sekadar terdengar—dan ada nama yang ketika disebut, keindahan seakan menemukan bentuknya.</p>
+            <button class="next-btn" id="next-btn">Next ➜</button>
+        </div>
+    </div>
+
+    <!-- PERTANYAAN -->
+    <div id="screen-question" class="screen">
+        <h1 class="q-title">So, will you be my gf, Giselda Sabina?</h1>
+        <div class="button-group">
+            <button id="yes-btn">Yes</button>
+            <button id="no-btn">No</button>
+        </div>
+    </div>
+
+    <!-- TERIMA KASIH -->
+    <div id="screen-thanks" class="screen">
+        <div class="heart">🖤</div>
+        <div class="final-title">Thank You</div>
+        <div class="final-msg">
+            Makasih udah nerima hati aku ini, dan maaf banget ya ga gentle hehe. Ini first time aku ngungkapin dan berikan ke seseorang.
+        </div>
+        <div class="instruction">Screenshot this page and send it if you true love</div>
+    </div>
+
+    <script>
+        // Fungsi Floating Hearts
+        function createHearts() {
+            const container = document.getElementById('hearts');
+            for (let i = 0; i < 15; i++) {
+                const h = document.createElement('div');
+                h.className = 'bg-heart';
+                h.style.left = Math.random() * 100 + '%';
+                h.style.animationDelay = Math.random() * 10 + 's';
+                h.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                h.innerText = '🤍';
+                container.appendChild(h);
+            }
+        }
+        createHearts();
+
+        // PIN Logic
+        const pinInput = document.getElementById('pin-input');
+        const errMsg = document.getElementById('err-msg');
+        const pinScreen = document.getElementById('screen-pin');
+
+        pinInput.addEventListener('input', function() {
+            if (this.value.length === 4) {
+                if (this.value === '0412') {
+                    pinScreen.classList.remove('active');
+                    document.getElementById('screen-letter').classList.add('active');
+                } else {
+                    errMsg.style.opacity = '1';
+                    pinScreen.classList.add('shake');
+                    setTimeout(() => { pinScreen.classList.remove('shake'); }, 500);
+                    this.value = '';
+                }
+            }
+        });
+
+        // Envelope Logic
+        const envelope = document.getElementById('envelope');
+        const letter = document.getElementById('letter');
+        const nextBtn = document.getElementById('next-btn');
+
+        envelope.addEventListener('click', () => {
+            envelope.classList.add('clicked');
+            setTimeout(() => {
+                envelope.style.opacity = '0';
+                letter.classList.add('show');
+                setTimeout(() => { nextBtn.classList.add('show'); }, 1200);
+            }, 600);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            document.getElementById('screen-letter').classList.remove('active');
+            document.getElementById('screen-question').classList.add('active');
+        });
+
+        // Yes/No Buttons Logic
+        let scale = 1;
+        const yesBtn = document.getElementById('yes-btn');
+        const noBtn = document.getElementById('no-btn');
+        const thanksScreen = document.getElementById('screen-thanks');
+        const qScreen = document.getElementById('screen-question');
+
+        function dodge(e) {
+            e.preventDefault();
+            const rect = noBtn.getBoundingClientRect();
+            const x = Math.random() * (window.innerWidth - rect.width - 20);
+            const y = Math.random() * (window.innerHeight - rect.height - 20);
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+        }
+        noBtn.addEventListener('mouseover', dodge);
+        noBtn.addEventListener('touchstart', dodge);
+        noBtn.addEventListener('click', dodge);
+
+        yesBtn.addEventListener('click', () => {
+            scale *= 1.3;
+            yesBtn.style.transform = `scale(${scale})`;
+
+            if (scale > 5) {
+                // Pindah ke layar ucapan terima kasih
+                qScreen.classList.remove('active');
+                thanksScreen.classList.add('active');
+                
+                // Confetti burst
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+                setTimeout(() => confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 } }), 250);
+                setTimeout(() => confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 } }), 400);
+            }
+        });
+    </script>
+</body>
+</html>
